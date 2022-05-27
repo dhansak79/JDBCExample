@@ -15,24 +15,24 @@ public class FilmDao {
   public List< Film > getFilmsWithRating( String rating ) {
     String sqlStatement = "select * from sakila.film WHERE rating = ?";
     String[] arguments = new String[]{ rating };
-    return getFilms( sqlStatement, arguments );
+    return executeQuery( sqlStatement, arguments );
   }
 
   public List< Film > getFilmsWithTitle( String title ) {
     String sqlStatement = "select * from sakila.film WHERE title = ?";
     String[] arguments = new String[]{ title };
-    return getFilms( sqlStatement, arguments );
+    return executeQuery( sqlStatement, arguments );
   }
 
   public List< Film > getAllFilms() {
     String sqlStatement = "select * from sakila.film";
-    return getFilms( sqlStatement );
+    return executeQuery( sqlStatement );
   }
 
   public List< Film > getFilmsWithRatingAndDescription( String rating, String description ) {
     String sqlStatement = "select * from sakila.film WHERE rating = ? AND description LIKE ?";
     String[] arguments = new String[]{ rating, "%" + description + "%" };
-    return getFilms( sqlStatement, arguments );
+    return executeQuery( sqlStatement, arguments );
   }
 
   public int addFilm( Film film ) {
@@ -48,36 +48,11 @@ public class FilmDao {
     return executeUpdate( sqlStatement, arguments );
   }
 
-  private int executeUpdate( String sqlStatement, Object[] arguments ) {
-    int rowsAffected = 0;
-    try {
-      Connection connection = ConnectionFactory.getConnection();
-      PreparedStatement preparedStatement = connection.prepareStatement( sqlStatement );
-      int i = 1;
-      for ( Object argument : arguments ) {
-        preparedStatement.setObject( i, argument );
-        i++;
-      }
-      rowsAffected = preparedStatement.executeUpdate();
-      preparedStatement.close();
-    } catch ( IOException | SQLException e ) {
-      e.printStackTrace();
-      return rowsAffected;
-    } finally {
-      try {
-        ConnectionFactory.closeConnection();
-      } catch ( SQLException e ) {
-        e.printStackTrace();
-      }
-    }
-    return rowsAffected;
+  private List< Film > executeQuery( String sqlStatement ) {
+    return executeQuery( sqlStatement, new String[]{} );
   }
 
-  private List< Film > getFilms( String sqlStatement ) {
-    return getFilms( sqlStatement, new String[]{} );
-  }
-
-  private List< Film > getFilms( String sqlStatement, String[] arguments ) {
+  private List< Film > executeQuery( String sqlStatement, String[] arguments ) {
     List< Film > films = new ArrayList<>();
     try {
       Connection connection = ConnectionFactory.getConnection();
@@ -111,6 +86,31 @@ public class FilmDao {
       }
     }
     return films;
+  }
+
+  private int executeUpdate( String sqlStatement, Object[] arguments ) {
+    int rowsAffected = 0;
+    try {
+      Connection connection = ConnectionFactory.getConnection();
+      PreparedStatement preparedStatement = connection.prepareStatement( sqlStatement );
+      int i = 1;
+      for ( Object argument : arguments ) {
+        preparedStatement.setObject( i, argument );
+        i++;
+      }
+      rowsAffected = preparedStatement.executeUpdate();
+      preparedStatement.close();
+    } catch ( IOException | SQLException e ) {
+      e.printStackTrace();
+      return rowsAffected;
+    } finally {
+      try {
+        ConnectionFactory.closeConnection();
+      } catch ( SQLException e ) {
+        e.printStackTrace();
+      }
+    }
+    return rowsAffected;
   }
 
 }
