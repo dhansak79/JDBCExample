@@ -49,10 +49,10 @@ public class GetFilmsTest {
   @Test
   public void deleteFilms() {
     FilmDao filmDao = new FilmDao();
-    Film film = new Film( "Daniel goes on holiday", "the worst holiday ever", ( short ) 2022, 1, "R" );
-    filmDao.addFilm( film );
+    Film danielGoesOnHoliday = new Film( "Daniel goes on holiday", "the worst holiday ever", ( short ) 2022, 1, "R" );
+    filmDao.addFilm( danielGoesOnHoliday );
     Assertions.assertTrue( ( filmDao.getFilmsWithTitle( "Daniel goes on holiday" ).size() ) > 0 );
-    filmDao.deleteFilmWithName( "Daniel goes on holiday" );
+    filmDao.deleteFilmWithNameMatching( danielGoesOnHoliday );
     Assertions.assertEquals( 0, filmDao.getFilmsWithTitle( "Daniel goes on holiday" ).size() );
   }
 

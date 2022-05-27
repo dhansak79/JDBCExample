@@ -37,38 +37,27 @@ public class FilmDao {
 
   public int addFilm( Film film ) {
     String sqlStatement = "INSERT INTO film (title, description, release_year, language_id, rating) VALUES (?, ?, ?, ?, ?)";
-    int rowsAffected = 0;
-    try {
-      Connection connection = ConnectionFactory.getConnection();
-      PreparedStatement preparedStatement = connection.prepareStatement( sqlStatement );
-      preparedStatement.setString( 1, film.getTitle() );
-      preparedStatement.setString( 2, film.getDescription() );
-      preparedStatement.setShort( 3, film.getReleaseYear() );
-      preparedStatement.setInt( 4, film.getLanguageId() );
-      preparedStatement.setString( 5, film.getRating() );
-      rowsAffected = preparedStatement.executeUpdate();
-      preparedStatement.close();
-    } catch ( IOException | SQLException e ) {
-      e.printStackTrace();
-      return rowsAffected;
-    } finally {
-      try {
-        ConnectionFactory.closeConnection();
-      } catch ( SQLException e ) {
-        e.printStackTrace();
-      }
-    }
-    return rowsAffected;
+    Object[] arguments = new Object[]{ film.getTitle(), film.getDescription(), film.getReleaseYear(), film.getLanguageId(), film.getRating() };
+    return executeUpdate( sqlStatement, arguments );
 
   }
 
-  public int deleteFilmWithName( String nameOfFilmToDelete ) {
+  public int deleteFilmWithNameMatching( Film film ) {
     String sqlStatement = "DELETE FROM film WHERE title = ?";
+    String[] arguments = new String[]{ film.getTitle() };
+    return executeUpdate( sqlStatement, arguments );
+  }
+
+  private int executeUpdate( String sqlStatement, Object[] arguments ) {
     int rowsAffected = 0;
     try {
       Connection connection = ConnectionFactory.getConnection();
       PreparedStatement preparedStatement = connection.prepareStatement( sqlStatement );
-      preparedStatement.setString( 1, nameOfFilmToDelete );
+      int i = 1;
+      for ( Object argument : arguments ) {
+        preparedStatement.setObject( i, argument );
+        i++;
+      }
       rowsAffected = preparedStatement.executeUpdate();
       preparedStatement.close();
     } catch ( IOException | SQLException e ) {
@@ -98,7 +87,20 @@ public class FilmDao {
         preparedStatement.setString( i, argument );
         i++;
       }
-      films = executeQuery( preparedStatement );
+      ResultSet resultSet;
+      resultSet = preparedStatement.executeQuery();
+      List< Film > films1 = new ArrayList<>();
+      while ( resultSet.next() ) {
+        Film film = new Film(
+                resultSet.getString( "title" ),
+                resultSet.getString( "description" ),
+                resultSet.getShort( "release_year" ),
+                resultSet.getInt( "language_id" ),
+                resultSet.getString( "rating" ) );
+
+        films1.add( film );
+      }
+      films = films1;
     } catch ( IOException | SQLException e ) {
       e.printStackTrace();
     } finally {
@@ -111,21 +113,5 @@ public class FilmDao {
     return films;
   }
 
-  private List< Film > executeQuery( PreparedStatement statement ) throws SQLException {
-    ResultSet resultSet;
-    resultSet = statement.executeQuery();
-    List< Film > films = new ArrayList<>();
-    while ( resultSet.next() ) {
-      Film film = new Film(
-              resultSet.getString( "title" ),
-              resultSet.getString( "description" ),
-              resultSet.getShort( "release_year" ),
-              resultSet.getInt( "language_id" ),
-              resultSet.getString( "rating" ) );
-
-      films.add( film );
-    }
-    return films;
-  }
 }
 
