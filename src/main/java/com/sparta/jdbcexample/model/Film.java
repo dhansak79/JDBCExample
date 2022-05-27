@@ -3,10 +3,8 @@ package com.sparta.jdbcexample.model;
 public class Film {
   private final String title;
   private final String description;
-
   private final short releaseYear;
   private final int languageId;
-
   private final String rating;
 
   public Film( final String title, final String description, final short releaseYear,
