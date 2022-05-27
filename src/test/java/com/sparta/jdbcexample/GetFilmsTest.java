@@ -37,22 +37,27 @@ public class GetFilmsTest {
   @Test
   public void insertANewFilm() {
     FilmDao filmDao = new FilmDao();
-    int expectedTotalNumberOfFilms = filmDao.getAllFilms().size() + 1;
-    int expectedNumberOfFilmsCalledDanielGoesOnHoliday = filmDao.getFilmsWithTitle( "Daniel goes on holiday" ).size() + 1;
+    int numberOfFilmsBefore = filmDao.getAllFilms().size();
+
     Film film = new Film( "Daniel goes on holiday", "the worst holiday ever", ( short ) 2022, 1, "R" );
-    filmDao.addFilm( film );
-    Assertions.assertEquals( expectedTotalNumberOfFilms, filmDao.getAllFilms().size() );
-    Assertions.assertEquals( expectedNumberOfFilmsCalledDanielGoesOnHoliday, filmDao.getFilmsWithTitle( "Daniel goes on holiday" ).size() );
-    System.out.println( filmDao.getFilmsWithTitle( "Daniel goes on holiday" ) );
+    int rowsUpdated = filmDao.addFilm( film );
+    Assertions.assertEquals( 1, rowsUpdated );
+
+    int numberOfFilmsAfter = filmDao.getAllFilms().size();
+
+    Assertions.assertEquals( 1, (numberOfFilmsAfter - numberOfFilmsBefore) );
   }
 
   @Test
   public void deleteFilms() {
+    //Given a film called Daniel goes on holiday
     FilmDao filmDao = new FilmDao();
     Film danielGoesOnHoliday = new Film( "Daniel goes on holiday", "the worst holiday ever", ( short ) 2022, 1, "R" );
     filmDao.addFilm( danielGoesOnHoliday );
-    Assertions.assertTrue( ( filmDao.getFilmsWithTitle( "Daniel goes on holiday" ).size() ) > 0 );
+    Assertions.assertTrue( filmDao.getFilmsWithTitle( "Daniel goes on holiday" ).size() > 0 );
+    //When I delete the film
     filmDao.deleteFilmWithNameMatching( danielGoesOnHoliday );
+    //Then the film no longer exists
     Assertions.assertEquals( 0, filmDao.getFilmsWithTitle( "Daniel goes on holiday" ).size() );
   }
 

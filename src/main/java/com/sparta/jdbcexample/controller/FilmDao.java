@@ -45,7 +45,7 @@ public class FilmDao {
 
   public int deleteFilmWithNameMatching( Film film ) {
     String sqlStatement = "DELETE FROM film WHERE title = ?";
-    String[] arguments = new String[]{ film.getTitle() };
+    Object[] arguments = new Object[]{ film.getTitle() };
     return executeUpdate( sqlStatement, arguments );
   }
 
@@ -80,7 +80,7 @@ public class FilmDao {
     int rowsAffected = 0;
     PreparedStatement preparedStatement = getPreparedStatement( sqlStatement, arguments );
     try {
-      preparedStatement.executeUpdate();
+      rowsAffected = preparedStatement.executeUpdate();
     } catch ( SQLException e ) {
       e.printStackTrace();
     }
@@ -115,7 +115,6 @@ public class FilmDao {
                 resultSet.getShort( "release_year" ),
                 resultSet.getInt( "language_id" ),
                 resultSet.getString( "rating" ) );
-        films.add( film );
         films.add( film );
       }
     } catch ( SQLException e ) {
