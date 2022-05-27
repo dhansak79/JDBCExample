@@ -15,10 +15,14 @@ public class ConnectionFactory {
   private ConnectionFactory() {
   }
 
-  public static Connection getConnection() throws IOException, SQLException {
+  public static Connection getConnection() throws SQLException {
     if ( connection == null ) {
       Properties databaseProperties = new Properties();
-      databaseProperties.load( new FileReader( "src/main/resources/mysql.properties" ) );
+      try {
+        databaseProperties.load( new FileReader( "src/main/resources/mysql.properties" ) );
+      } catch ( IOException e ) {
+        throw new RuntimeException( e.getMessage() );
+      }
       connection = DriverManager.getConnection(
               databaseProperties.getProperty( "dburl" ),
               databaseProperties.getProperty( "dbuserid" ),

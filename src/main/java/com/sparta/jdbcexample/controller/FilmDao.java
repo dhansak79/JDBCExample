@@ -2,7 +2,6 @@ package com.sparta.jdbcexample.controller;
 
 import com.sparta.jdbcexample.model.Film;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,33 +12,33 @@ import java.util.List;
 public class FilmDao {
 
   public List< Film > getFilmsWithRating( String rating ) {
-    String sqlStatement = "select * from sakila.film WHERE rating = ?";
+    String sqlStatement = "SELECT * FROM sakila.film WHERE rating = ?";
     String[] arguments = new String[]{ rating };
     return executeQuery( sqlStatement, arguments );
   }
 
   public List< Film > getFilmsWithTitle( String title ) {
-    String sqlStatement = "select * from sakila.film WHERE title = ?";
+    String sqlStatement = "SELECT * FROM sakila.film WHERE title = ?";
     String[] arguments = new String[]{ title };
     return executeQuery( sqlStatement, arguments );
   }
 
   public List< Film > getAllFilms() {
-    String sqlStatement = "select * from sakila.film";
+    String sqlStatement = "SELECT * FROM sakila.film";
     return executeQuery( sqlStatement );
   }
 
   public List< Film > getFilmsWithRatingAndDescription( String rating, String description ) {
-    String sqlStatement = "select * from sakila.film WHERE rating = ? AND description LIKE ?";
+    String sqlStatement = "SELECT * FROM sakila.film WHERE rating = ? AND description LIKE ?";
     String[] arguments = new String[]{ rating, "%" + description + "%" };
     return executeQuery( sqlStatement, arguments );
   }
 
   public int addFilm( Film film ) {
     String sqlStatement = "INSERT INTO film (title, description, release_year, language_id, rating) VALUES (?, ?, ?, ?, ?)";
-    Object[] arguments = new Object[]{ film.getTitle(), film.getDescription(), film.getReleaseYear(), film.getLanguageId(), film.getRating() };
+    Object[] arguments = new Object[]{ film.getTitle(),
+            film.getDescription(), film.getReleaseYear(), film.getLanguageId(), film.getRating() };
     return executeUpdate( sqlStatement, arguments );
-
   }
 
   public int deleteFilmWithNameMatching( Film film ) {
@@ -53,66 +52,72 @@ public class FilmDao {
   }
 
   private List< Film > executeQuery( String sqlStatement, String[] arguments ) {
-    List< Film > films = new ArrayList<>();
+    List< Film > films;
+    ResultSet resultSet = null;
+    PreparedStatement preparedStatement = getPreparedStatement( sqlStatement, arguments );
     try {
-      Connection connection = ConnectionFactory.getConnection();
-      PreparedStatement preparedStatement = connection.prepareStatement( sqlStatement );
-      int i = 1;
-      for ( String argument : arguments ) {
-        preparedStatement.setString( i, argument );
-        i++;
-      }
-      ResultSet resultSet;
       resultSet = preparedStatement.executeQuery();
-      films = getFilmsFromResultSet( resultSet );
-    } catch ( IOException | SQLException e ) {
+    } catch ( SQLException e ) {
       e.printStackTrace();
     } finally {
-      try {
-        ConnectionFactory.closeConnection();
-      } catch ( SQLException e ) {
-        e.printStackTrace();
-      }
+      films = getFilmsFromResultSet( resultSet );
+      closeTheConnection();
     }
     return films;
   }
 
+  private void closeTheConnection() {
+    try {
+      ConnectionFactory.closeConnection();
+    } catch ( SQLException e ) {
+      e.printStackTrace();
+    }
+  }
+
   private int executeUpdate( String sqlStatement, Object[] arguments ) {
     int rowsAffected = 0;
+    PreparedStatement preparedStatement = getPreparedStatement( sqlStatement, arguments );
+    try {
+      preparedStatement.executeUpdate();
+    } catch ( SQLException e ) {
+      e.printStackTrace();
+    }
+    //TODO add logging properly
+    System.out.println( rowsAffected + " rows were affected." );
+    return rowsAffected;
+  }
+
+  private PreparedStatement getPreparedStatement( String sqlStatement, Object[] arguments ) {
+    PreparedStatement preparedStatement = null;
     try {
       Connection connection = ConnectionFactory.getConnection();
-      PreparedStatement preparedStatement = connection.prepareStatement( sqlStatement );
+      preparedStatement = connection.prepareStatement( sqlStatement );
       int i = 1;
       for ( Object argument : arguments ) {
         preparedStatement.setObject( i, argument );
         i++;
       }
-      rowsAffected = preparedStatement.executeUpdate();
-      preparedStatement.close();
-    } catch ( IOException | SQLException e ) {
+    } catch ( SQLException e ) {
       e.printStackTrace();
-      return rowsAffected;
-    } finally {
-      try {
-        ConnectionFactory.closeConnection();
-      } catch ( SQLException e ) {
-        e.printStackTrace();
-      }
     }
-    return rowsAffected;
+    return preparedStatement;
   }
 
-  private List< Film > getFilmsFromResultSet( ResultSet resultSet ) throws SQLException {
+  private List< Film > getFilmsFromResultSet( ResultSet resultSet ) {
     List< Film > films = new ArrayList<>();
-    while ( resultSet.next() ) {
-      Film film = new Film(
-              resultSet.getString( "title" ),
-              resultSet.getString( "description" ),
-              resultSet.getShort( "release_year" ),
-              resultSet.getInt( "language_id" ),
-              resultSet.getString( "rating" ) );
+    try {
+      while ( resultSet.next() ) {
+        Film film = new Film(
+                resultSet.getString( "title" ),
+                resultSet.getString( "description" ),
+                resultSet.getShort( "release_year" ),
+                resultSet.getInt( "language_id" ),
+                resultSet.getString( "rating" ) );
 
-      films.add( film );
+        films.add( film );
+      }
+    } catch ( SQLException e ) {
+      e.printStackTrace();
     }
     return films;
   }
