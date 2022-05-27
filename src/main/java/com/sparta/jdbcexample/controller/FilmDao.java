@@ -113,7 +113,7 @@ public class FilmDao {
                 resultSet.getShort( "release_year" ),
                 resultSet.getInt( "language_id" ),
                 resultSet.getString( "rating" ) );
-
+        films.add( film );
         films.add( film );
       }
     } catch ( SQLException e ) {
