@@ -29,13 +29,15 @@ public class FilmDao {
   }
 
   public List< Film > getFilmsWithRatingAndDescription( String rating, String description ) {
-    String sqlStatement = "SELECT * FROM sakila.film WHERE rating = ? AND description LIKE ?";
+    String sqlStatement =
+            "SELECT * FROM sakila.film WHERE rating = ? AND description LIKE ?";
     String[] arguments = new String[]{ rating, "%" + description + "%" };
     return executeQuery( sqlStatement, arguments );
   }
 
   public int addFilm( Film film ) {
-    String sqlStatement = "INSERT INTO film (title, description, release_year, language_id, rating) VALUES (?, ?, ?, ?, ?)";
+    String sqlStatement =
+            "INSERT INTO film (title, description, release_year, language_id, rating) VALUES (?, ?, ?, ?, ?)";
     Object[] arguments = new Object[]{ film.getTitle(),
             film.getDescription(), film.getReleaseYear(), film.getLanguageId(), film.getRating() };
     return executeUpdate( sqlStatement, arguments );
