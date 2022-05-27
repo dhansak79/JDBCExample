@@ -64,18 +64,7 @@ public class FilmDao {
       }
       ResultSet resultSet;
       resultSet = preparedStatement.executeQuery();
-      List< Film > films1 = new ArrayList<>();
-      while ( resultSet.next() ) {
-        Film film = new Film(
-                resultSet.getString( "title" ),
-                resultSet.getString( "description" ),
-                resultSet.getShort( "release_year" ),
-                resultSet.getInt( "language_id" ),
-                resultSet.getString( "rating" ) );
-
-        films1.add( film );
-      }
-      films = films1;
+      films = getFilmsFromResultSet( resultSet );
     } catch ( IOException | SQLException e ) {
       e.printStackTrace();
     } finally {
@@ -113,5 +102,18 @@ public class FilmDao {
     return rowsAffected;
   }
 
-}
+  private List< Film > getFilmsFromResultSet( ResultSet resultSet ) throws SQLException {
+    List< Film > films = new ArrayList<>();
+    while ( resultSet.next() ) {
+      Film film = new Film(
+              resultSet.getString( "title" ),
+              resultSet.getString( "description" ),
+              resultSet.getShort( "release_year" ),
+              resultSet.getInt( "language_id" ),
+              resultSet.getString( "rating" ) );
 
+      films.add( film );
+    }
+    return films;
+  }
+}
