@@ -34,5 +34,27 @@ public class GetFilmsTest {
     System.out.println( films.get( 0 ) );
   }
 
+  @Test
+  public void insertANewFilm() {
+    FilmDao filmDao = new FilmDao();
+    int expectedTotalNumberOfFilms = filmDao.getAllFilms().size() + 1;
+    int expectedNumberOfFilmsCalledDanielGoesOnHoliday = filmDao.getFilmsWithTitle( "Daniel goes on holiday" ).size() + 1;
+    Film film = new Film( "Daniel goes on holiday", "the worst holiday ever", ( short ) 2022, 1, "R" );
+    filmDao.addFilm( film );
+    Assertions.assertEquals( expectedTotalNumberOfFilms, filmDao.getAllFilms().size() );
+    Assertions.assertEquals( expectedNumberOfFilmsCalledDanielGoesOnHoliday, filmDao.getFilmsWithTitle( "Daniel goes on holiday" ).size() );
+    System.out.println( filmDao.getFilmsWithTitle( "Daniel goes on holiday" ) );
+  }
+
+  @Test
+  public void deleteFilms() {
+    FilmDao filmDao = new FilmDao();
+    Film film = new Film( "Daniel goes on holiday", "the worst holiday ever", ( short ) 2022, 1, "R" );
+    filmDao.addFilm( film );
+    Assertions.assertTrue( ( filmDao.getFilmsWithTitle( "Daniel goes on holiday" ).size() ) > 0 );
+    filmDao.deleteFilmWithName( "Daniel goes on holiday" );
+    Assertions.assertEquals( 0, filmDao.getFilmsWithTitle( "Daniel goes on holiday" ).size() );
+  }
+
 
 }

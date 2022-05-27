@@ -18,6 +18,12 @@ public class FilmDao {
     return getFilms( sqlStatement, arguments );
   }
 
+  public List< Film > getFilmsWithTitle( String title ) {
+    String sqlStatement = "select * from sakila.film WHERE title = ?";
+    String[] arguments = new String[]{ title };
+    return getFilms( sqlStatement, arguments );
+  }
+
   public List< Film > getAllFilms() {
     String sqlStatement = "select * from sakila.film";
     return getFilms( sqlStatement );
@@ -26,7 +32,56 @@ public class FilmDao {
   public List< Film > getFilmsWithRatingAndDescription( String rating, String description ) {
     String sqlStatement = "select * from sakila.film WHERE rating = ? AND description LIKE ?";
     String[] arguments = new String[]{ rating, "%" + description + "%" };
-    return getFilms(sqlStatement, arguments);
+    return getFilms( sqlStatement, arguments );
+  }
+
+  public int addFilm( Film film ) {
+    String sqlStatement = "INSERT INTO film (title, description, release_year, language_id, rating) VALUES (?, ?, ?, ?, ?)";
+    int rowsAffected = 0;
+    try {
+      Connection connection = ConnectionFactory.getConnection();
+      PreparedStatement preparedStatement = connection.prepareStatement( sqlStatement );
+      preparedStatement.setString( 1, film.getTitle() );
+      preparedStatement.setString( 2, film.getDescription() );
+      preparedStatement.setShort( 3, film.getReleaseYear() );
+      preparedStatement.setInt( 4, film.getLanguageId() );
+      preparedStatement.setString( 5, film.getRating() );
+      rowsAffected = preparedStatement.executeUpdate();
+      preparedStatement.close();
+    } catch ( IOException | SQLException e ) {
+      e.printStackTrace();
+      return rowsAffected;
+    } finally {
+      try {
+        ConnectionFactory.closeConnection();
+      } catch ( SQLException e ) {
+        e.printStackTrace();
+      }
+    }
+    return rowsAffected;
+
+  }
+
+  public int deleteFilmWithName( String nameOfFilmToDelete ) {
+    String sqlStatement = "DELETE FROM film WHERE title = ?";
+    int rowsAffected = 0;
+    try {
+      Connection connection = ConnectionFactory.getConnection();
+      PreparedStatement preparedStatement = connection.prepareStatement( sqlStatement );
+      preparedStatement.setString( 1, nameOfFilmToDelete );
+      rowsAffected = preparedStatement.executeUpdate();
+      preparedStatement.close();
+    } catch ( IOException | SQLException e ) {
+      e.printStackTrace();
+      return rowsAffected;
+    } finally {
+      try {
+        ConnectionFactory.closeConnection();
+      } catch ( SQLException e ) {
+        e.printStackTrace();
+      }
+    }
+    return rowsAffected;
   }
 
   private List< Film > getFilms( String sqlStatement ) {
@@ -72,6 +127,5 @@ public class FilmDao {
     }
     return films;
   }
-
 }
 
