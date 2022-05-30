@@ -41,6 +41,12 @@ public class FilmDao {
     return DbUtils.executeUpdate( sqlStatement, arguments );
   }
 
+  public void addFilms( List< Film > films ) {
+    for ( Film film : films ) {
+      addFilm( film );
+    }
+  }
+
   public int deleteFilmWithNameMatching( Film film ) {
     String sqlStatement = "DELETE FROM film WHERE title = ?";
     Object[] arguments = new Object[]{ film.getTitle() };

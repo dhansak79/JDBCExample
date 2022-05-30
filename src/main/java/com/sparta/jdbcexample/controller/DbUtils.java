@@ -31,7 +31,7 @@ public class DbUtils {
       e.printStackTrace();
     }
     //TODO add logging properly
-    System.out.println( rowsAffected + " rows were affected." );
+//    System.out.println( rowsAffected + " rows were affected." );
     return rowsAffected;
   }
 
